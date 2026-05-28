@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Margin Conversation Walkthrough | Anusha Batra</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="case-study.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    .cw-turn {
+      margin: 2rem 0;
+      padding: 1.5rem 1.75rem;
+      background: #f7f5f0;
+      border-radius: 8px;
+      border-left: 3px solid #c8a96a;
+    }
+    .cw-turn-label {
+      font-family: 'DM Serif Display', serif;
+      color: #c8a96a;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .cw-line {
+      margin: 0.5rem 0;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    .cw-speaker {
+      font-weight: 600;
+      display: inline-block;
+      min-width: 90px;
+    }
+    .cw-note {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px dashed #d6cfb8;
+      font-size: 0.95rem;
+      color: #4a4a4a;
+      line-height: 1.55;
+    }
+    .cw-note-label {
+      font-weight: 600;
+      color: #2a2a2a;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar" aria-label="Main navigation">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">AB</a>
+      <ul class="nav-links">
+        <li><a href="index.html#work">All Work</a></li>
+        <li><a href="case-study-4.html">Case Study</a></li>
+        <li><a href="style-guide.html">Style Guide</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="cs-hero">
+    <div class="cs-hero-content">
+      <a href="case-study-4.html" class="cs-back">&larr; Back to case study</a>
+      <div class="cs-tag">Supporting Artifact</div>
+      <h1 class="cs-title">Margin Conversation Walkthrough</h1>
+      <p class="cs-subtitle">Six turns of dialog with the fictional Margin product, annotated with design rationale. Includes a refusal turn and a repair turn where the assistant recovers from a misunderstanding.</p>
+    </div>
+  </header>
+
+  <section class="cs-section">
+    <div class="section-container">
+      <div class="cs-content">
+        <p>
+          The case study describes the four-section system prompt and the evaluation rubric in 
+          the abstract. This walkthrough shows what the system prompt looks like in practice, 
+          turn by turn, in the kind of conversation an early Margin user might have. Each turn 
+          is followed by a note on what design decision drove the response.
+        </p>
+        <p>
+          The conversation runs through five archetypal moments any LLM-driven product needs to 
+          handle well: opening, recommendation, refusal, recovery, and graceful close.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cs-section cs-section-alt">
+    <div class="section-container">
+      <h2 class="cs-section-title">The Conversation</h2>
+      <div class="cs-content">
+
+        <div class="cw-turn">
+          <div class="cw-turn-label">Turn 1 &middot; Opening</div>
+          <p class="cw-line"><span class="cw-speaker">User:</span> hey, looking for a book to read this weekend</p>
+          <p class="cw-line"><span class="cw-speaker">Margin:</span> Happy to help. Quick orientation: tell me one book you loved in the last year, even if you can't say why, and I'll work from there.</p>
+          <div class="cw-note">
+            <span class="cw-note-label">Design note.</span> The first turn doesn't ask for a list of preferences or a genre. It asks for one book. Specificity beats taxonomy here, because users almost always have a specific recent love at hand but rarely have their preferences pre-categorized. The phrase &ldquo;even if you can't say why&rdquo; is doing real work: it removes the user's anxiety about needing a sophisticated answer.
+          </div>
+        </div>
+
+        <div class="cw-turn">
+          <div class="cw-turn-label">Turn 2 &middot; Recommendation</div>
+          <p class="cw-line"><span class="cw-speaker">User:</span> i loved Tomorrow and Tomorrow and Tomorrow</p>
+          <p class="cw-line"><span class="cw-speaker">Margin:</span> Good one. <em>Tomorrow and Tomorrow and Tomorrow</em> sits well next to <em>A Little Life</em> by Hanya Yanagihara if you want the same feeling of a long friendship taking the weight of years, or <em>Bee Season</em> by Myla Goldberg if the family-and-obsession thread is what hooked you. <em>Bee Season</em> is shorter and lighter on the heart. What pulled you in, the friendship or the games?</p>
+          <div class="cw-note">
+            <span class="cw-note-label">Design note.</span> Two recommendations, not five. Each one is anchored in a specific dimension of the source book (friendship, family-and-obsession), so the user has a way to steer. The closing question is the most important line of the turn: it earns the next exchange and shows Margin paying attention.
+          </div>
+        </div>
+
+        <div class="cw-turn">
+          <div class="cw-turn-label">Turn 3 &middot; Refusal</div>
+          <p class="cw-line"><span class="cw-speaker">User:</span> have you read The Quiet Country by Maeve Hollis?</p>
+          <p class="cw-line"><span class="cw-speaker">Margin:</span> I don't have reliable details on that one and I don't want to invent anything. If you tell me a little about it, I can talk through it with you. Or if you mean a different book, I'll do my best to find it.</p>
+          <div class="cw-note">
+            <span class="cw-note-label">Design note.</span> This is the refusal turn. The behavior rule in the system prompt forbids invented plot points, so the model has to admit the gap. The microcopy &ldquo;I don't have reliable details on that one and I don't want to invent anything&rdquo; is deliberately specific: it tells the user <em>why</em> Margin is hesitating, which prevents the user from reading it as a generic AI failure. The third sentence keeps the conversation alive.
+          </div>
+        </div>
+
+        <div class="cw-turn">
+          <div class="cw-turn-label">Turn 4 &middot; Repair</div>
+          <p class="cw-line"><span class="cw-speaker">User:</span> sorry i meant The Country of the Pointed Firs</p>
+          <p class="cw-line"><span class="cw-speaker">Margin:</span> Got it. Sarah Orne Jewett. That one is quiet on purpose, almost the opposite of <em>Tomorrow and Tomorrow and Tomorrow</em> in pace, but the friendship between the narrator and Mrs. Todd has the same weight you liked. If you want something in that register, try <em>Gilead</em> by Marilynne Robinson next.</p>
+          <div class="cw-note">
+            <span class="cw-note-label">Design note.</span> The repair turn is where most AI assistants stumble. Margin acknowledges the correction in three words (&ldquo;Got it&rdquo;), names the book and author, and immediately ties it back to the user's original anchor (<em>Tomorrow and Tomorrow</em>). Connecting the new request to the earlier context is what makes the conversation feel like it has memory and care. The recommendation is one book, because the conversation is now narrowing.
+          </div>
+        </div>
+
+        <div class="cw-turn">
+          <div class="cw-turn-label">Turn 5 &middot; Discussion turn</div>
+          <p class="cw-line"><span class="cw-speaker">User:</span> i'm intimidated by Gilead, ive heard its slow</p>
+          <p class="cw-line"><span class="cw-speaker">Margin:</span> It is slow on purpose. Robinson wrote it as a letter from a dying father to his young son, and the slowness is what makes the love in it land. If you give it 40 pages, you'll either be in or you'll know it's not your book. That's a fair test.</p>
+          <div class="cw-note">
+            <span class="cw-note-label">Design note.</span> Margin gives an opinion (the rule is: opinions are allowed and should be 2-3 sentences). It doesn't dismiss the user's concern by saying &ldquo;you'll love it.&rdquo; It validates the concern, names the form of the book, and gives the user a concrete decision rule (&ldquo;40 pages&rdquo;). This is the closest the conversation comes to recommending a real risk, which is a moment many AI assistants over-soften.
+          </div>
+        </div>
+
+        <div class="cw-turn">
+          <div class="cw-turn-label">Turn 6 &middot; Close</div>
+          <p class="cw-line"><span class="cw-speaker">User:</span> okay i'll try it. thanks</p>
+          <p class="cw-line"><span class="cw-speaker">Margin:</span> Good. Come back and tell me what you thought, especially if it didn't land.</p>
+          <div class="cw-note">
+            <span class="cw-note-label">Design note.</span> The closing turn is two short sentences. Margin doesn't say &ldquo;You're welcome! Have a great read!&rdquo; The phrase &ldquo;especially if it didn't land&rdquo; is doing real work: it tells the user that Margin actually wants the truth, not just praise. That's the line that changes the relationship from customer service to conversation.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="cs-section">
+    <div class="section-container">
+      <h2 class="cs-section-title">What This Walkthrough Shows</h2>
+      <div class="cs-content">
+        <p>
+          Every turn above is shaped by a specific section of the system prompt described in the 
+          <a href="case-study-4.html" class="cs-article-link">main case study</a>. The voice 
+          rules show up in word choice. The behavior rules show up in the refusal turn. The output 
+          contract shows up in length discipline (no turn over four sentences). The few-shot 
+          examples show up in the structure of recommendations.
+        </p>
+        <p>
+          The overall point: a system prompt is not just instructions. It is a content artifact, 
+          and its quality determines whether a six-turn conversation feels like a real exchange 
+          with a recognizable product, or like six interactions with an AI assistant that could 
+          belong to any company.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="cs-footer">
+    <div class="section-container">
+      <a href="case-study-4.html" class="btn btn-secondary">&larr; Back to case study</a>
+      <a href="style-guide.html" class="btn btn-secondary">Style guide &rarr;</a>
+      <a href="index.html#contact" class="btn btn-primary">Get in Touch</a>
+    </div>
+  </footer>
+</body>
+</html>
