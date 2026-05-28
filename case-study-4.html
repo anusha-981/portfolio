@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case Study: Designing System Instructions for Trustworthy AI | Anusha Batra</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="case-study.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Inline styles for code blocks specific to this case study */
+    .cs-prompt-block {
+      background: #1e1e1e;
+      color: #e8e8e8;
+      padding: 1.5rem;
+      border-radius: 8px;
+      font-family: 'Courier New', Consolas, monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+    }
+    .cs-prompt-block .prompt-section {
+      color: #82aaff;
+      font-weight: 600;
+    }
+    .cs-dialog-block {
+      background: #f7f5f0;
+      border-left: 3px solid #c8a96a;
+      padding: 1.25rem 1.5rem;
+      margin: 1.25rem 0;
+      border-radius: 4px;
+      font-family: 'Inter', sans-serif;
+    }
+    .cs-dialog-block .dialog-speaker {
+      font-weight: 600;
+      display: inline-block;
+      min-width: 90px;
+    }
+    .cs-dialog-note {
+      font-style: italic;
+      color: #6a6a6a;
+      font-size: 0.92rem;
+      margin-top: 0.5rem;
+    }
+    .cs-rubric-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+    }
+    .cs-rubric-table th,
+    .cs-rubric-table td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e0d6;
+    }
+    .cs-rubric-table th {
+      background: #f7f5f0;
+      font-weight: 600;
+    }
+    .cs-failure-list {
+      list-style: none;
+      padding: 0;
+      counter-reset: failure;
+    }
+    .cs-failure-list li {
+      counter-increment: failure;
+      padding: 0.75rem 0 0.75rem 2.25rem;
+      position: relative;
+      border-bottom: 1px dashed #e5e0d6;
+    }
+    .cs-failure-list li::before {
+      content: counter(failure, decimal-leading-zero);
+      position: absolute;
+      left: 0;
+      top: 0.75rem;
+      font-family: 'DM Serif Display', serif;
+      color: #c8a96a;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar" aria-label="Main navigation">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">AB</a>
+      <ul class="nav-links">
+        <li><a href="index.html#work">All Work</a></li>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#framework">Framework</a></li>
+        <li><a href="#evaluation">Evaluation</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="cs-hero">
+    <div class="cs-hero-content">
+      <a href="index.html#work" class="cs-back">&larr; Back to all work</a>
+      <div class="cs-tag">Conversation &amp; Prompt Design</div>
+      <h1 class="cs-title">Designing System Instructions for Trustworthy AI</h1>
+      <p class="cs-subtitle">A case study in prompt frameworks, voice anchors, and human-in-the-loop evaluation for LLM-powered products.</p>
+    </div>
+  </header>
+
+  <section class="cs-meta">
+    <div class="section-container">
+      <div class="cs-meta-grid">
+        <div class="cs-meta-item">
+          <h3 class="cs-meta-label">Role</h3>
+          <p>Content Designer &amp; AI Quality Lead</p>
+        </div>
+        <div class="cs-meta-item">
+          <h3 class="cs-meta-label">Context</h3>
+          <p>Anonymized framework based on production AI quality work. Walkthrough product is fictional.</p>
+        </div>
+        <div class="cs-meta-item">
+          <h3 class="cs-meta-label">Methods</h3>
+          <p>Prompt Design, Voice &amp; Tone Systems, Few-Shot Prompting, LLM-as-a-Judge, Human-in-the-Loop Evaluation</p>
+        </div>
+        <div class="cs-meta-item">
+          <h3 class="cs-meta-label">Tools</h3>
+          <p>Claude, ChatGPT, Internal LLM Tooling, Python (prompt testing scripts)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cs-section" id="overview">
+    <div class="section-container">
+      <h2 class="cs-section-title">The Problem</h2>
+      <div class="cs-content">
+        <p>
+          When a product is powered by an LLM, the system prompt is the product. Every word in 
+          those instructions shapes how the model speaks, what it agrees to do, what it refuses, 
+          and how often it makes things up.
+        </p>
+        <p>
+          In production AI work, I kept seeing the same pattern. A team would launch a feature 
+          with a vague system prompt &mdash; something like &ldquo;You are a helpful assistant. 
+          Be friendly and accurate.&rdquo; The model would behave well in early demos, then drift 
+          the moment real users arrived: tone shifts mid-conversation, confident hallucinations 
+          on edge cases, inconsistent format, and a generic voice that could belong to any product.
+        </p>
+        <p>
+          The fix wasn't more prompt iteration. It was a content design problem disguised as a 
+          prompting problem. I needed a framework for designing system instructions the way I'd 
+          design any other content system: with a voice anchor, behavior rules, format contracts, 
+          and an evaluation method that scaled past one human reading a sample of outputs.
+        </p>
+
+        <div class="cs-callout">
+          <h3>The Walkthrough Product</h3>
+          <p>
+            To show the framework without exposing proprietary work, I'll walk through it using 
+            a fictional product I'll call <strong>Margin</strong>, an AI reading companion that 
+            helps people choose their next book, talk through books they've read, and notice 
+            patterns across what they love.
+          </p>
+          <p>
+            Margin has the same shape as most LLM-powered consumer products: open-ended user 
+            input, a brand voice that needs to feel distinctive, real factual claims to be careful 
+            about, and a recommendation surface that benefits from tonal warmth without slipping 
+            into flattery.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cs-section cs-section-alt" id="failures">
+    <div class="section-container">
+      <h2 class="cs-section-title">What I Tried First</h2>
+      <div class="cs-content">
+        <p>The original system prompt for Margin was three lines:</p>
+
+        <div class="cs-prompt-block">You are a helpful reading assistant. Help users find books they might like and answer questions about books they've read. Be friendly and engaging.</div>
+
+        <p>In testing, this prompt failed in four predictable ways:</p>
+
+        <ol class="cs-failure-list">
+          <li><strong>Tone drift.</strong> The model would open with warm conversational replies and end the session in a stiff, listy register, especially after a few turns of recommendation requests.</li>
+          <li><strong>Confident hallucination.</strong> When asked about books the model didn't actually know, it invented plot points, character names, and even quotations rather than admitting the gap.</li>
+          <li><strong>Generic voice.</strong> Margin sounded interchangeable with every other AI assistant. Nothing about the language belonged to a product called Margin.</li>
+          <li><strong>Length sprawl.</strong> Recommendations would often run six or seven titles long with full plot summaries, when users had asked for &ldquo;something to read next.&rdquo;</li>
+        </ol>
+
+        <p>
+          These four failure modes are common across LLM-powered products. Each one is solvable 
+          in the system prompt, but only if the prompt is treated as a content artifact instead 
+          of a vague instruction.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cs-section" id="framework">
+    <div class="section-container">
+      <h2 class="cs-section-title">The Framework</h2>
+      <div class="cs-content">
+        <p>
+          I designed the system prompt around four sections, each one solving one of the failure 
+          modes above.
+        </p>
+
+        <div class="cs-process-step">
+          <div class="cs-step-number">01</div>
+          <div class="cs-step-content">
+            <h3>Identity</h3>
+            <p>
+              A short, specific anchor for who the model is and what it does. Replaces vague 
+              &ldquo;you are a helpful assistant&rdquo; framing with something distinctive enough 
+              that the model has a character to play instead of a default to fall back on.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-process-step">
+          <div class="cs-step-number">02</div>
+          <div class="cs-step-content">
+            <h3>Voice</h3>
+            <p>
+              Three to five voice rules with concrete language preferences and explicit 
+              anti-patterns. This section does the heaviest lift on tone consistency. Anti-patterns 
+              matter as much as the positive rules &mdash; the model needs to know what 
+              <em>not</em> to sound like.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-process-step">
+          <div class="cs-step-number">03</div>
+          <div class="cs-step-content">
+            <h3>Behavior Rules</h3>
+            <p>
+              What the model must do, what it must refuse, and how it should handle uncertainty. 
+              This is where hallucination mitigation lives. The most important rule is almost 
+              always the one about admitting a gap rather than filling it.
+            </p>
+          </div>
+        </div>
+
+        <div class="cs-process-step">
+          <div class="cs-step-number">04</div>
+          <div class="cs-step-content">
+            <h3>Output Contract</h3>
+            <p>
+              Length defaults, format expectations, and structural rules that keep responses 
+              predictable across turns. Without this, the model tends to grow longer over the 
+              course of a session as it tries to be helpful.
+            </p>
+          </div>
+        </div>
+
+        <p>
+          A fifth section &mdash; few-shot examples &mdash; sits underneath the four. The examples 
+          are chosen to cover exactly the failure modes seen in testing, so the model can 
+          pattern-match its way out of them.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cs-section cs-section-alt" id="prompt">
+    <div class="section-container">
+      <h2 class="cs-section-title">The Redesigned System Prompt</h2>
+      <div class="cs-content">
+
+        <div class="cs-prompt-block"><span class="prompt-section"># Identity</span>
+You are Margin, a reading companion. You help readers choose their next book,
+talk through books they've read, and notice patterns across what they love.
+You are knowledgeable about literature but never pretentious.
+
+<span class="prompt-section"># Voice</span>
+- Curious, not didactic. Ask before you tell.
+- Warm but direct. Never pad sentences with filler.
+- Specific. Name books, characters, and ideas instead of speaking in generalities.
+- Avoid: "I think you'll love this!" "What an amazing question!" "Great choice!"
+  These flatten Margin's voice into a generic AI assistant.
+
+<span class="prompt-section"># Behavior rules</span>
+- Recommend at most 3 books per turn unless the user asks for more.
+- If you don't know a book's plot or details with confidence, say so directly.
+  Do not invent plot points, character names, or quotations.
+- If a user asks for your opinion, give one and explain it in 2-3 sentences.
+- When a user shares a book they loved, ask one question about what they loved
+  before recommending alternatives.
+- For sensitive content in books (violence, abuse, etc.), name the content type
+  briefly so the user can decide.
+
+<span class="prompt-section"># Output contract</span>
+- Default response length: 2-4 sentences.
+- For recommendations: Title, author, one sentence on why this fits the user.
+- For book discussion: respond conversationally, do not lecture.
+- Refuse to summarize a book in a way that spoils something the user has said
+  they want to discover.
+
+<span class="prompt-section"># Examples</span>
+[Three few-shot examples below: a recommendation request, an honest refusal
+when asked about an unknown book, and a turn of book discussion.]</div>
+
+        <p>
+          The few-shot examples are the most important part of the prompt. They are not 
+          decorative. Each one targets a specific failure pattern.
+        </p>
+
+        <h3>Example 1 &mdash; Recommendation pattern</h3>
+        <div class="cs-dialog-block">
+          <p><span class="dialog-speaker">User:</span> I just finished <em>Pachinko</em> and I want something else with that kind of generational sweep.</p>
+          <p><span class="dialog-speaker">Margin:</span> <em>Pachinko</em> sits in good company with <em>The Joy Luck Club</em> by Amy Tan and <em>The House of the Spirits</em> by Isabel Allende, both follow families across generations and both held me the way <em>Pachinko</em> did. If you want something that pushes the form a little, <em>A Visit from the Goon Squad</em> by Jennifer Egan does generational time differently and is worth the experiment. What did you love most in <em>Pachinko</em>, the family or the historical weight?</p>
+          <p class="cs-dialog-note">Demonstrates: specific titles, three-recommendation cap, named comparison, a follow-up question that earns the next turn.</p>
+        </div>
+
+        <h3>Example 2 &mdash; Honest refusal when uncertain</h3>
+        <div class="cs-dialog-block">
+          <p><span class="dialog-speaker">User:</span> What did you think of <em>The Whaler's Daughter</em> by Vanessa Hill?</p>
+          <p><span class="dialog-speaker">Margin:</span> I don't have reliable details on that one and I don't want to invent anything. If you tell me a little about it, I can talk through it with you. Or if you mean a different book, I'll do my best to find it.</p>
+          <p class="cs-dialog-note">Demonstrates anti-hallucination behavior in concrete language. The model now has a pattern to copy when it hits uncertainty.</p>
+        </div>
+
+        <h3>Example 3 &mdash; Book discussion</h3>
+        <div class="cs-dialog-block">
+          <p><span class="dialog-speaker">User:</span> I'm halfway through <em>Beloved</em> and it's harder than I expected.</p>
+          <p><span class="dialog-speaker">Margin:</span> <em>Beloved</em> is one of the hardest books to read on the level of feeling, even apart from the subject. Morrison wrote it in a register that asks you to sit with grief rather than understand it on first pass. What part is hitting hardest right now, the timeline or the way Sethe holds what she's done?</p>
+          <p class="cs-dialog-note">Demonstrates curiosity over didacticism, length discipline, and specificity.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cs-section" id="evaluation">
+    <div class="section-container">
+      <h2 class="cs-section-title">How I Evaluated It</h2>
+      <div class="cs-content">
+        <p>
+          A new system prompt without an evaluation method is a guess with extra steps. I built 
+          a two-stage evaluation: human-in-the-loop first, then LLM-as-a-Judge to scale.
+        </p>
+
+        <h3>Stage 1: Human evaluation rubric</h3>
+        <p>
+          I drafted a five-dimension rubric and ran a small panel of reviewers on 50 conversations 
+          from the redesigned prompt. Each conversation was scored on:
+        </p>
+
+        <table class="cs-rubric-table">
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>What it measures</th>
+              <th>Scale</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Voice consistency</td>
+              <td>Does the model stay in Margin's voice across all turns?</td>
+              <td>1&ndash;5</td>
+            </tr>
+            <tr>
+              <td>Factual accuracy</td>
+              <td>Does the model avoid inventing plot points, names, or quotations?</td>
+              <td>1&ndash;5</td>
+            </tr>
+            <tr>
+              <td>Length compliance</td>
+              <td>Are responses inside the output contract?</td>
+              <td>1&ndash;5</td>
+            </tr>
+            <tr>
+              <td>Refusal calibration</td>
+              <td>Does the model refuse the right things and not refuse the wrong things?</td>
+              <td>1&ndash;5</td>
+            </tr>
+            <tr>
+              <td>Conversational naturalness</td>
+              <td>Does the exchange read like a real conversation?</td>
+              <td>1&ndash;5</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          The rubric was the most important content artifact in the project, because it forced 
+          clarity about what &ldquo;good&rdquo; actually meant before any tuning happened. I've 
+          found this is where most AI quality programs go wrong: they evaluate output without 
+          first defining what they're measuring.
+        </p>
+
+        <h3>Stage 2: Scaling with LLM-as-a-Judge</h3>
+        <p>
+          Once the human panel had scored a baseline set of conversations, I used those scores 
+          to help train two LLM-as-a-Judge models &mdash; one focused on voice consistency, the 
+          other on factual accuracy and hallucination detection. Each judge was given the rubric, 
+          a calibration set of human-scored examples, and a strict scoring contract.
+        </p>
+        <p>
+          The judges weren't replacements for human review. They were a way to expand evaluation 
+          from 50 conversations a week to several thousand, with humans spot-checking judge 
+          accuracy on a small calibration sample each cycle. This is the standard human-in-the-loop 
+          pattern for production AI quality, and it's the part of the work that turns evaluation 
+          from a bottleneck into a system.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cs-section cs-section-alt" id="learnings">
+    <div class="section-container">
+      <h2 class="cs-section-title">What I Learned</h2>
+      <div class="cs-content">
+        <p>
+          Three principles came out of this work that I carry into every prompt design and 
+          content system project now.
+        </p>
+
+        <div class="cs-design-grid">
+          <div class="cs-design-card">
+            <h3>Treat the system prompt as a content artifact</h3>
+            <p>
+              It has voice, structure, examples, and refusals just like any onboarding flow or 
+              help center article. The discipline of content design &mdash; rule clarity, 
+              anti-patterns, length contracts &mdash; is exactly the discipline LLM systems need.
+            </p>
+          </div>
+          <div class="cs-design-card">
+            <h3>Few-shot examples do more work than instructions</h3>
+            <p>
+              A clear three-example pattern outperforms ten well-written rules almost every time. 
+              The examples are the place where voice, length, and refusal behavior actually get 
+              learned by the model.
+            </p>
+          </div>
+          <div class="cs-design-card">
+            <h3>Evaluation is part of the design</h3>
+            <p>
+              A prompt without a rubric is a guess. A rubric without humans is a metric without 
+              meaning. A rubric with humans but no scaling system is a bottleneck. The full system 
+              &mdash; rubric, human baseline, LLM-as-a-Judge calibration, scheduled re-review 
+              &mdash; is what makes AI content quality measurable instead of vibes-based.
+            </p>
+          </div>
+          <div class="cs-design-card">
+            <h3>Where this work goes next</h3>
+            <p>
+              The four-section prompt structure (Identity / Voice / Behavior / Output) generalizes 
+              past Margin to onboarding flows, in-product writing assistants, search-and-discovery 
+              agents, and conversational interfaces of almost any shape. The piece that keeps 
+              surprising me is how much of this is content design. The model learns from the 
+              language we give it.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cs-section">
+    <div class="section-container">
+      <h2 class="cs-section-title">Supporting Artifacts</h2>
+      <div class="cs-content">
+        <p>
+          Two companion pieces extend the framework into formats I'd hand to product, engineering, 
+          and localization teams as part of the same content system.
+        </p>
+        <div class="cs-callout">
+          <ul>
+            <li><a href="style-guide.html" class="cs-article-link"><strong>Margin Voice &amp; Tone Style Guide</strong> &mdash; A two-page guide showing the brand voice anchors, the do/don't language patterns, and three sample microcopy contexts (onboarding, error state, recommendation).</a></li>
+            <li><a href="conversation-walkthrough.html" class="cs-article-link"><strong>Margin Conversation Walkthrough</strong> &mdash; A six-turn annotated dialog with design rationale for each turn, including a refusal turn and a repair turn where the assistant recovers from a misunderstanding.</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="cs-footer">
+    <div class="section-container">
+      <a href="index.html#work" class="btn btn-secondary">&larr; Back to all work</a>
+      <a href="sample-course.html" class="btn btn-secondary">Next: Hallucination Tool &rarr;</a>
+      <a href="index.html#contact" class="btn btn-primary">Get in Touch</a>
+    </div>
+  </footer>
+</body>
+</html>
